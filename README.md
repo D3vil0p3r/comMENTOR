@@ -1,9 +1,10 @@
 # comMENTOR
-comMENTOR extracts all comments from the specified URL resource.
 
 ![image](https://user-images.githubusercontent.com/83867734/193436315-523c0d1f-5b05-4240-981f-09e6145728d6.png)
 
-commentor [-e <extension>] [-h] [-u <website>] [-o <filename.txt>]
+comMENTOR extracts all comments from the specified URL resource.
+
+commentor [-e \<extension\>] [-h] [-u \<website\>] [-o <filename.txt>]
 
 Options:
 | Argument | Description |
