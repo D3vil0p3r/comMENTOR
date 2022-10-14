@@ -17,17 +17,22 @@ Help()
    # Display Help
    echo "comMENTOR extracts all comments from the specified URL resource."
    echo
-   echo "$(basename "$0") [-e <extension>] [-h] [-u <website>] [-o <filename.txt>]"
+   echo "$(basename "$0") [-c <comment type>] [-h] [-u <website>] [-o <filename.txt>]"
    echo
    echo "Options:"
-   echo "e     Specify the extension of the resource (i.e., html, xml, asp, aspx, php, js, css, sh...)."
+   echo "c     Specify the extension of the resource (i.e., xml, cstyle, hashtag)."
    echo "h     Print this Help."
    echo "u     Input URL."
    echo "o     Print to a file."
    echo
+   echo "XML-like: <!-- --> (for HTML, XML, ASP, ASPX web pages)"
+   echo "CStyle-like: // or /* */ (for PHP, JS, CSS web pages)"
+   echo "Hashtag-like: # (for BASH files)"
+   echo
    echo "Usage Examples:"
-   echo "commentor -u "https://apis.google.com/js/platform.js" -e js"
-   echo "commentor -u "https://raw.githubusercontent.com/D3vil0p3r/catana/main/catana" -e sh"
+   echo "commentor -u "https://apis.google.com/js/platform.js" -c cstyle"
+   echo "commentor -u "https://debian.org" -c xml"
+   echo "commentor -u "https://raw.githubusercontent.com/D3vil0p3r/catana/main/catana" -c hashtag"
    echo
 }
 
@@ -36,18 +41,22 @@ Help()
 # Process the input options. Add options as needed.        #
 ############################################################
 # Get the options
-while getopts ":e:hu:o:" option; do #When using getopts, putting : after an option character means that it requires an argument (i.e., 'i:' requires arg).
+while getopts ":c:hu:o:" option; do #When using getopts, putting : after an option character means that it requires an argument (i.e., 'i:' requires arg).
    case "${option}" in
-      e) 
-         ext=$OPTARG
-         if [ $ext == "html" ] || [ $ext == "xml" ] || [ $ext == "asp" ] || [ $ext == "aspx" ];then
+      c) 
+         comment=$OPTARG
+         if [ $comment == "xml" ];then
             xml=1
-         elif [ $ext == "php" ] || [ $ext == "js" ] || [ $ext == "css" ]; then
+         fi
+         if [ $comment == "cstyle" ]; then
             cstyle=1
-         elif [ $ext == "sh" ]; then
+         fi
+         if [ $comment == "hashtag" ]; then
             hashtag=1
-         else
-            echo "Select an extension: html, php, js, css or bash."
+         fi
+
+         if [ $comment != "xml" ] && [ $comment != "cstyle" ] && [ $comment != "hashtag" ];then
+            echo "Select a comment type: xml, cstyle, hashtag."
             exit 0
          fi
          ;;
@@ -73,43 +82,42 @@ done
 
 echo
 if [ ! "$url" ]; then
-    echo "Error: no URL specified. Use -u https://targetsite.com/file.html -e <extension>."
+    echo "Error: no URL specified. Use -u https://targetsite.com/file.html -c <comment type>."
     exit 0
 fi
 
-if [ ! "$ext" ]; then
-    echo "Error: no extension specified. Use -e <extension>."
+if [ ! "$comment" ]; then
+    echo "Error: no valid argument specified. Use -c <comment type> option."
     exit 0
 fi
 
+echo "Target: $url"
+echo
 if [ "$xml" ]; then
    #Look for <!-- --> comments
    xmlcomments=$(curl -s -L "$url" | tidy -q -numeric -asxhtml --show-warnings no --custom-tags blocklevel | xmlstarlet sel --html -t -m '//comment()' -v . -n)
 
    if [ ! "$xmlcomments" ]; then
-      echo "No comments found."
-      exit 0
+      echo "No <!-- --> comments found."
    fi
 
    if [ "$out" ]; then
-       echo "Target: $url"
-       echo
-       echo "<!-- --> comments:" > $out
+       echo "<!-- --> comments:" >> $out
        echo >> $out
        echo "$xmlcomments" >> $out
        echo >> $out
-       echo "Comments correctly stored in ${out} file"
+       echo "<!-- --> comments correctly stored in ${out} file"
        echo
    else
-       echo "Target: $url"
-       echo
        echo "<!-- --> comments:"
        echo
        echo "$xmlcomments"
        echo
-       echo "End of comments."
+       echo "End of <!-- --> comments."
    fi
-elif [ "$cstyle" ]; then
+fi
+
+if [ "$cstyle" ]; then
    #Look for /* */ comments
    tmpfile="cstylecomment.txt"
    curl -s -L $url > $tmpfile
@@ -117,52 +125,44 @@ elif [ "$cstyle" ]; then
    rm -rf $tmpfile
 
    if [ ! "$cstylecomments" ]; then
-      echo "No comments found."
-      exit 0
+      echo "No // and /* */ comments found."
    fi
 
    if [ "$out" ]; then
-       echo "Target: $url"
-       echo
        echo "// and /* */ comments:" >> $out
        echo >> $out
        echo "$cstylecomments" >> $out
-       echo "Comments correctly stored in ${out} file"
+       echo "// and /* */ comments correctly stored in ${out} file"
        echo
    else
-       echo "Target: $url"
-       echo
        echo "// and /* */ comments:"
        echo
        echo "$cstylecomments"
        echo
-       echo "End of comments."
+       echo "End of // and /* */ comments."
    fi
-elif [ "$hashtag" ]; then
+fi
+
+if [ "$hashtag" ]; then
    #Look for # comments
    hashtagcomments=$(curl -s -L "$url" | grep -o "#.*")
 
    if [ ! "$hashtagcomments" ]; then
-      echo "No comments found."
-      exit 0
+      echo "No # comments found."
    fi
 
    if [ "$out" ]; then
-       echo "Target: $url"
-       echo
-       echo "# comments:" > $out
+       echo "# comments:" >> $out
        echo >> $out
        echo "$hashtagcomments" >> $out
        echo >> $out
-       echo "Comments correctly stored in ${out} file"
+       echo "# comments correctly stored in ${out} file"
        echo
    else
-       echo "Target: $url"
-       echo
        echo "# comments:"
        echo
        echo "$hashtagcomments"
        echo
-       echo "End of comments."
+       echo "End of # comments."
    fi
 fi
