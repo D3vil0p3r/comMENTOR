@@ -84,7 +84,7 @@ fi
 
 if [ "$xml" ]; then
    #Look for <!-- --> comments
-   xmlcomments=$(curl -s -L "$url" | tidy -q -numeric -asxhtml --show-warnings no | xmlstarlet sel --html -t -m '//comment()' -v . -n)
+   xmlcomments=$(curl -s -L "$url" | tidy -q -numeric -asxhtml --show-warnings no --custom-tags blocklevel | xmlstarlet sel --html -t -m '//comment()' -v . -n)
 
    if [ ! "$xmlcomments" ]; then
       echo "No comments found."
