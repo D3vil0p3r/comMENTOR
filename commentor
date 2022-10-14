@@ -22,7 +22,7 @@ Help()
    echo "$(basename "$0") [-c <comment type>] [-h] [-u <website>] [-o <filename.txt>]"
    echo
    echo "Options:"
-   echo "c     Specify the extension of the resource (i.e., xml, cstyle, hashtag)."
+   echo "c     Specify the type of the comment (i.e., xml, cstyle, hashtag)."
    echo "h     Print this Help."
    echo "u     Input URL."
    echo "o     Print to a file."
