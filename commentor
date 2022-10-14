@@ -1,6 +1,8 @@
 #!/bin/sh
 trap "exit 1" TERM
 export TOP_PID=$$
+bold=$(tput bold)
+normal=$(tput sgr0)
 
 ############################################################
 # Banner                                                   #
@@ -91,7 +93,7 @@ if [ ! "$comment" ]; then
     exit 0
 fi
 
-echo "Target: $url"
+echo "${bold}Target: $url${normal}"
 echo
 if [ "$xml" ]; then
    #Look for <!-- --> comments
@@ -109,11 +111,12 @@ if [ "$xml" ]; then
        echo "<!-- --> comments correctly stored in ${out} file"
        echo
    else
-       echo "<!-- --> comments:"
+       echo "${bold}<!-- --> comments:${normal}"
        echo
        echo "$xmlcomments"
        echo
-       echo "End of <!-- --> comments."
+       echo "${bold}End of <!-- --> comments.${normal}"
+       echo
    fi
 fi
 
@@ -135,11 +138,12 @@ if [ "$cstyle" ]; then
        echo "// and /* */ comments correctly stored in ${out} file"
        echo
    else
-       echo "// and /* */ comments:"
+       echo "${bold}// and /* */ comments:${normal}"
        echo
        echo "$cstylecomments"
        echo
-       echo "End of // and /* */ comments."
+       echo "${bold}End of // and /* */ comments.${normal}"
+       echo
    fi
 fi
 
@@ -159,10 +163,11 @@ if [ "$hashtag" ]; then
        echo "# comments correctly stored in ${out} file"
        echo
    else
-       echo "# comments:"
+       echo "${bold}# comments:${normal}"
        echo
        echo "$hashtagcomments"
        echo
-       echo "End of # comments."
+       echo "${bold}End of # comments.${normal}"
+       echo
    fi
 fi
